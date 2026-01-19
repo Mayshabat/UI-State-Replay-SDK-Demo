@@ -65,6 +65,38 @@ def list_sessions():
         d["_id"] = str(d["_id"])
     return jsonify({"sessions": docs, "count": len(docs)}), 200
 
+
+@app.route("/sessions/<session_id>", methods=["PUT"])
+def update_session(session_id):
+    data = request.get_json(force=True)
+
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    # try update by ObjectId
+    try:
+        result = sessions_col.update_one(
+            {"_id": ObjectId(session_id)},
+            {"$set": data}
+        )
+        if result.matched_count == 1:
+            return jsonify({"updated": True, "sessionId": session_id}), 200
+    except Exception:
+        pass
+
+    # fallback update by sessionId
+    result = sessions_col.update_one(
+        {"sessionId": session_id},
+        {"$set": data}
+    )
+    if result.matched_count == 1:
+        return jsonify({"updated": True, "sessionId": session_id}), 200
+
+    return jsonify({"updated": False, "error": "Session not found"}), 404
+
+
+
+
 @app.route("/sessions/<session_id>", methods=["DELETE"])
 def delete_session(session_id):
     # try by ObjectId

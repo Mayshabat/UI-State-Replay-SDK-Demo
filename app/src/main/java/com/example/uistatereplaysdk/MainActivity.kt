@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Replay.init("http://10.0.2.2:5000/") // emulator -> host machine
+        Replay.init("http://ui-state-replay-sdk.onrender.com/") // emulator -> host machine
 
         enableEdgeToEdge()
         setContent {

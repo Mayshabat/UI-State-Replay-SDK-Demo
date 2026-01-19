@@ -9,7 +9,7 @@ object ApiClient {
 
     private const val JSON = "application/json; charset=utf-8"
 
-    private var baseUrl: String = "http://10.0.2.2:5000/" // ברירת מחדל לאמולטור
+    private var baseUrl: String = "http://ui-state-replay-sdk.onrender.com/" // ברירת מחדל לאמולטור
     private var api: ApiService? = null
 
     fun init(baseUrl: String) {

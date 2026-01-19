@@ -4,4 +4,3 @@ dnspython
 gunicorn
 flask-cors
 
- 
