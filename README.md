@@ -74,7 +74,7 @@ repositories {
 dependencies {
     implementation 'com.github.Mayshabat:ui-state-replay-sdk:v1.0.0'
 }
----
+
 ```
 ##  Usage Example
 
@@ -84,15 +84,20 @@ Replay.start()
 
 ```
 ### Log events
+```kotlin
 Replay.log("NAVIGATE", "HomeScreen")
 Replay.log("ADD_TO_CART", "ProductScreen")
- 
-### Stop recording and upload
+ ```
 
+### Stop recording and upload
+```kotlin
 Replay.stopAndUpload()
+```
 
 ### Replay a recorded session
+```kotlin
 Replay.replay(session)
+```
 
 ### Demo Application
 The repository includes a demo Android application that demonstrates:
