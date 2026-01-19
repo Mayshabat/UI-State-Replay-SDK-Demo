@@ -69,3 +69,22 @@ repositories {
 dependencies {
     implementation 'com.github.Mayshabat:ui-state-replay-sdk:v1.0.0'
 }
+
+---
+### Usage Example 
+## Start recording
+Replay.start()
+
+## Log events
+Replay.log("NAVIGATE", "HomeScreen")
+Replay.log("ADD_TO_CART", "ProductScreen")
+
+## Stop recording and upload
+Replay.stopAndUpload()
+## Replay a recorded session
+Replay.replay(session)
+
+
+
+
+
