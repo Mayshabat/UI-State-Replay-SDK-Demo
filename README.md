@@ -1,6 +1,7 @@
 # UI State Replay SDK
 
-UI State Replay SDK is an Android SDK that allows developers to **record, store, and replay user interface interactions** without video recording.  
+UI State Replay SDK is an Android SDK that allows developers to **record, store, and replay user interface interactions** without video recording.
+
 The SDK captures structured UI events (such as navigation, clicks, and screen transitions), uploads them to a cloud backend, and enables deterministic replay for debugging, UX analysis, and bug reproduction.
 
 ---
@@ -40,7 +41,7 @@ The project is composed of three main components:
 
 ## ☁️ Cloud Backend
 
-**Base URL:**
+**Base URL:**  
 https://ui-state-replay-sdk.onrender.com
 
 ### Available Endpoints
@@ -59,32 +60,17 @@ All data is exchanged in JSON format.
 ## 📦 Installation (via JitPack)
 
 ### Step 1: Add JitPack repository
+
 ```gradle
 repositories {
     maven { url 'https://jitpack.io' }
 }
+
 ```
----
-## 
+
+### Step 2: Add the dependency
+
+```gradle
 dependencies {
     implementation 'com.github.Mayshabat:ui-state-replay-sdk:v1.0.0'
 }
-
----
-### Usage Example 
-## Start recording
-Replay.start()
-
-## Log events
-Replay.log("NAVIGATE", "HomeScreen")
-Replay.log("ADD_TO_CART", "ProductScreen")
-
-## Stop recording and upload
-Replay.stopAndUpload()
-## Replay a recorded session
-Replay.replay(session)
-
-
-
-
-
