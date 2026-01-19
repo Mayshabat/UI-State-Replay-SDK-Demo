@@ -74,3 +74,42 @@ repositories {
 dependencies {
     implementation 'com.github.Mayshabat:ui-state-replay-sdk:v1.0.0'
 }
+---
+
+##  Usage Example
+###  Start recording
+```kotlin
+Replay.start()
+```
+### Log events
+Replay.log("NAVIGATE", "HomeScreen")
+Replay.log("ADD_TO_CART", "ProductScreen")
+ 
+### Stop recording and upload
+
+Replay.stopAndUpload()
+
+### Replay a recorded session
+Replay.replay(session)
+
+### Demo Application
+The repository includes a demo Android application that demonstrates:
+
+Recording a real user flow
+
+Uploading a session to the backend
+
+Fetching a recorded session
+
+Replaying the flow with visual highlights and automatic navigation
+
+### 🎯 Use Cases
+Debugging complex UI flows
+
+Reproducing hard-to-catch bugs
+
+UX and product behavior analysis
+
+QA automation support
+
+Developer tooling and SDK research
