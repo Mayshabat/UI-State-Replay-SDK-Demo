@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.kotlinx.serialization.json.v173)
+    
     implementation(libs.retrofit)
     implementation(libs.converter.scalars)
     implementation(libs.okhttp)
