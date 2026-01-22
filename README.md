@@ -72,8 +72,8 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'com.github.Mayshabat:ui-state-replay-sdk:v1.0.0'
-}
+	        implementation 'com.github.Mayshabat:UI-State-Replay-SDK-Demo:Tag'
+	}
 
 ```
 ##  Usage Example
