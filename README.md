@@ -72,8 +72,8 @@ repositories {
 
 ```gradle
 dependencies {
-	        implementation 'com.github.Mayshabat:UI-State-Replay-SDK-Demo:Tag'
-	}
+    implementation "com.github.Mayshabat:UI-State-Replay-SDK-Demo:v1.0.0"
+}
 
 ```
 ##  Usage Example
@@ -116,13 +116,16 @@ The repository includes a demo Android application that demonstrates:
  
 ### 📋 Requirements
 
-- Android API 24+
+- Android API 26+
 - Kotlin
 - Internet permission
   
 ### Running the Backend Locally (Optional)
-```kotlin
+```bash
 cd server
 pip install -r requirements.txt
 python app.py
 ```
+## ⚙️ Configuration
+The SDK uses the backend base URL:
+https://ui-state-replay-sdk.onrender.com
