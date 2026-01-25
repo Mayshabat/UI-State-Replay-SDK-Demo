@@ -1,6 +1,9 @@
-# UI State Replay SDK
+# UI State Replay – Android SDK & Demo Application
 
-UI State Replay SDK is an Android SDK that allows developers to **record, store, and replay user interface interactions** without video recording.
+UI State Replay is an Android SDK that allows developers to **record, store, and replay user interface interactions** without video recording.
+
+This repository contains **both the Android SDK and a demo Android application** that showcases how to integrate and use the SDK.  
+The backend API service is implemented in a **separate repository** and deployed to the cloud.
 
 The SDK captures structured UI events (such as navigation, clicks, and screen transitions), uploads them to a cloud backend, and enables deterministic replay for debugging, UX analysis, and bug reproduction.
 
@@ -39,6 +42,14 @@ The project is composed of three main components:
 
 ---
 
+## 🗂 Repository Structure
+
+- **replaySDK/** – Android SDK library
+- **app/** – Demo Android application showcasing SDK usage
+- **docs/** – Full project documentation published via GitHub Pages
+
+---
+
 ## ☁️ Cloud Backend
 
 **Base URL:**  
@@ -46,12 +57,12 @@ https://ui-state-replay-sdk.onrender.com
 
 ### Available Endpoints
 
-- `GET /health` – Health check
-- `POST /sessions` – Create a new session
-- `GET /sessions` – Get recent sessions
-- `GET /sessions/{id}` – Get a specific session with events
-- `PUT /sessions/{id}` – Update a session
-- `DELETE /sessions/{id}` – Delete a session
+- `GET /health` – Health check  
+- `POST /sessions` – Create a new session  
+- `GET /sessions` – Get recent sessions  
+- `GET /sessions/{id}` – Get a specific session with events  
+- `PUT /sessions/{id}` – Update a session  
+- `DELETE /sessions/{id}` – Delete a session  
 
 All data is exchanged in JSON format.
 
@@ -63,9 +74,8 @@ All data is exchanged in JSON format.
 
 ```gradle
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url "https://jitpack.io" }
 }
-
 ```
 
 ### Step 2: Add the dependency
@@ -74,8 +84,8 @@ repositories {
 dependencies {
     implementation "com.github.Mayshabat:UI-State-Replay-SDK-Demo:v1.0.0"
 }
-
 ```
+
 ##  Usage Example
 
 ###  Start recording
@@ -96,7 +106,7 @@ Replay.stopAndUpload()
 
 ### Replay a recorded session
 ```kotlin
-Replay.replay(session)
+Replay.replay(sessionId)
 ```
 
 ### Demo Application
@@ -127,5 +137,15 @@ pip install -r requirements.txt
 python app.py
 ```
 ## ⚙️ Configuration
-The SDK uses the backend base URL:
+The SDK and demo application communicate with the cloud backend API using the following base URL:
 https://ui-state-replay-sdk.onrender.com
+
+This base URL is configured in the SDK initialization or API client and can be replaced with a local server URL for development if needed.
+
+## Documentation
+Full project documentation (architecture, API reference, SDK usage, and demo instructions) is available here:
+
+https://mayshabat.github.io/UI-State-Replay-SDK-Demo/
+
+## Backend API Repository
+https://github.com/Mayshabat/UI-State-Replay-Server
