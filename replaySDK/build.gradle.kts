@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
@@ -48,4 +49,16 @@ dependencies {
     implementation(libs.okhttp)
 
 
+}
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.Mayshabat"
+                artifactId = "ui-state-replay-sdk"
+                version = "v1.0.0"
+            }
+        }
+    }
 }
