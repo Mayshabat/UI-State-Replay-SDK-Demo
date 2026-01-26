@@ -9,12 +9,12 @@ object ApiClient {
 
     private const val JSON = "application/json; charset=utf-8"
 
-    private var baseUrl: String = "http://ui-state-replay-sdk.onrender.com/" // ברירת מחדל לאמולטור
+    // ✅ HTTPS default
+    private var baseUrl: String = "https://ui-state-replay-sdk.onrender.com/"
     private var api: ApiService? = null
 
     fun init(baseUrl: String) {
         this.baseUrl = if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
-        //יוצר לקוח HTTP יודע להחזיר מחרוזת מחבר לAPISERVIS
         api = Retrofit.Builder()
             .baseUrl(this.baseUrl)
             .addConverterFactory(ScalarsConverterFactory.create())

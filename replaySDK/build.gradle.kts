@@ -32,6 +32,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
+    }
 }
 
 dependencies {
@@ -48,7 +55,11 @@ dependencies {
     implementation(libs.converter.scalars)
     implementation(libs.okhttp)
 
+    implementation(platform(libs.androidx.compose.bom.v20240600))
 
+    implementation(libs.ui)
+    implementation(libs.androidx.runtime)
+    implementation(libs.material3)
 }
 afterEvaluate {
     publishing {

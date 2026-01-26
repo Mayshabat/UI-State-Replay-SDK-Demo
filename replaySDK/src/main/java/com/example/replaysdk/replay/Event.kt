@@ -1,13 +1,12 @@
+
+
 package com.example.replaysdk.replay
 
 import kotlinx.serialization.Serializable
-import android.window.SplashScreen
-import java.sql.Timestamp
-@Serializable //אומר שמותר להפוך את זה לגייסון
-data class Event(
-    val type: String,
-    val screen: String,
-    val timestamp: Long
 
+@Serializable
+data class Event(
+    val type: String,      // e.g. "CLICK"
+    val screen: String,    // e.g. "Login", "Open_p1"
+    val timestamp: Long
 )
-//מחלקה שמחזיקה נתונים בלבד
