@@ -1,112 +1,87 @@
 package com.example.replaysdk.replay
 
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Floating overlay controls provided by the SDK:
- * Start recording, Stop & Upload, Replay last uploaded session.
- *
- * The host app supplies onReplayEvent to map events -> app actions.
- */
 @Composable
 fun ReplayOverlay(
     modifier: Modifier = Modifier,
-    delayMs: Long = 500,
-    onReplayEvent: (Event) -> Unit
+    onReplayEvent: (Event) -> Unit,
+    onHighlightChanged: (String?) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    var isRecording by remember { mutableStateOf(false) }
     var lastSessionId by remember { mutableStateOf<String?>(null) }
-    var isReplaying by remember { mutableStateOf(false) }
+    var isRecording by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End
-    ) {
+    Column(modifier = modifier.padding(16.dp), horizontalAlignment = Alignment.End) {
+        // כפתור הקלטה
         SmallFloatingActionButton(
             onClick = {
-                if (!isRecording && !isReplaying) {
-                    Replay.start()
-                    isRecording = true
-                    lastSessionId = null
-                    Toast.makeText(context, "Recording started", Toast.LENGTH_SHORT).show()
-                }
+                Replay.start()
+                isRecording = true
+                Toast.makeText(context, "Recording Started", Toast.LENGTH_SHORT).show()
             },
-            containerColor = if (!isRecording && !isReplaying)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        ) { Text("Start") }
+            containerColor = if (isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+        ) { Text("Record") }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
+        // כפתור עצירה
         SmallFloatingActionButton(
             onClick = {
-                if (isRecording && !isReplaying) {
-                    scope.launch {
-                        try {
-                            val id = Replay.stopAndUpload()
-                            isRecording = false
-                            lastSessionId = id
-                            Toast.makeText(context, "Uploaded ✓ id: $id", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            isRecording = false
-                            Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                scope.launch {
+                    lastSessionId = Replay.stopAndUpload()
+                    isRecording = false
+                    Toast.makeText(context, "Session Saved", Toast.LENGTH_SHORT).show()
                 }
-            },
-            containerColor = if (isRecording && !isReplaying)
-                MaterialTheme.colorScheme.secondary
-            else
-                MaterialTheme.colorScheme.surfaceVariant
+            }
         ) { Text("Stop") }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
+        // כפתור REPLAY הויזואלי
         SmallFloatingActionButton(
             onClick = {
-                val id = lastSessionId ?: run {
-                    Toast.makeText(context, "No session to replay", Toast.LENGTH_SHORT).show()
-                    return@SmallFloatingActionButton
-                }
+                val id = lastSessionId ?: return@SmallFloatingActionButton
+                scope.launch {
+                    try {
+                        val session = Replay.fetch(id)
+                        val orderedEvents = Replay.eventsOf(session)
 
-                if (!isRecording && !isReplaying) {
-                    scope.launch {
-                        try {
-                            isReplaying = true
-                            Toast.makeText(context, "Replay started", Toast.LENGTH_SHORT).show()
+                        onReplayEvent(Event("REPLAY_START", "REPLAY", null, 0))
+                        delay(500)
 
-                            val session = Replay.fetch(id)
-                            Replay.replay(session, delayMs = delayMs, onEvent = onReplayEvent)
-
-                            Toast.makeText(context, "Replay finished", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Replay failed", Toast.LENGTH_SHORT).show()
-                        } finally {
-                            isReplaying = false
+                        for (e in orderedEvents) {
+                            if (e.type == "SCREEN") {
+                                onReplayEvent(e)
+                                delay(800)
+                            } else if (e.type == "CLICK") {
+                                onHighlightChanged(e.target) // הצגת הריבוע הכחול פיזית
+                                delay(1000) // זמן צפייה בלחיצה
+                                onReplayEvent(e) // ביצוע הפעולה באפליקציה
+                                delay(400)
+                                onHighlightChanged(null)
+                            }
                         }
+                        Toast.makeText(context, "REPLAY Finished", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Log.e("REPLAY_SDK", "Replay Failed", e)
+                    } finally {
+                        onHighlightChanged(null)
                     }
                 }
             },
-            containerColor = if (lastSessionId != null && !isRecording && !isReplaying)
-                MaterialTheme.colorScheme.tertiary
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        ) { Text("Replay") }
+            containerColor = MaterialTheme.colorScheme.tertiary
+        ) { Text("REPLAY") }
     }
 }

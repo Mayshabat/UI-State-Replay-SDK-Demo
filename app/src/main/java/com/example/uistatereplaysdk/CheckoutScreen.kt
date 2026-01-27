@@ -1,46 +1,58 @@
 package com.example.uistatereplaysdk
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.replaysdk.replay.ReplayButton
+import com.example.replaysdk.replay.replayElement
 
 @Composable
 fun CheckoutScreen(
     items: List<Product>,
-    highlightKey: String?,
     onBackToShop: () -> Unit,
     onReset: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Checkout")
+        Text(
+            text = "Your Cart",
+            style = MaterialTheme.typography.headlineSmall
+        )
 
         if (items.isEmpty()) {
-            Text("Cart is empty.")
+            Text("Your cart is empty.", style = MaterialTheme.typography.bodyMedium)
         } else {
-            items.forEach { p ->
-                Text("- ${p.emoji} ${p.name} (${p.price}₪)")
+            items.forEach { product ->
+                Text("• ${product.name} (${product.price}₪)", style = MaterialTheme.typography.bodyLarge)
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-        ReplayButton(tag = "BackShop", onClick = onBackToShop, modifier = Modifier.fillMaxWidth()) {
-            Text("Back to shop")
+        // תיקון: הוספת הבלוק { onBackToShop() } ל-Modifier
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .replayElement("Back_Shop") { onBackToShop() },
+            onClick = { /* מנוהל ע"י ה-Modifier בספרייה */ }
+        ) {
+            Text("Back to Shop")
         }
 
-        ReplayButton(tag = "Reset", onClick = onReset, modifier = Modifier.fillMaxWidth()) {
-            Text("Reset")
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .replayElement("Reset_App") { onReset() },
+            onClick = { /* מנוהל ע"י ה-Modifier בספרייה */ }
+        ) {
+            Text("Reset / Clear All")
         }
     }
 }

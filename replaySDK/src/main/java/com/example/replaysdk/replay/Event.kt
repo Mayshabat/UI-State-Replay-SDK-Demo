@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Event(
-    val type: String,      // e.g. "CLICK"
-    val screen: String,    // e.g. "Login", "Open_p1"
+    val type: String,          // "SCREEN", "CLICK"
+    val screen: String,        // "LoginScreen"
+    val target: String? = null,// "login_button"
     val timestamp: Long
 )

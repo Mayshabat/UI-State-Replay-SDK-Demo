@@ -1,45 +1,66 @@
 package com.example.uistatereplaysdk
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.replaysdk.replay.ReplayButton
+import com.example.replaysdk.replay.replayElement
 
 @Composable
 fun ProductScreen(
     product: Product,
-    highlightKey: String?, // אפשר להשאיר (לא חובה)
     onAddToCart: () -> Unit,
     onBackToShop: () -> Unit,
     onGoCheckout: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Product")
-        Text("${product.emoji} ${product.name}")
-        Text("${product.price}₪")
+        Text(
+            text = "${product.emoji} ${product.name}",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Price: ${product.price}₪",
+            style = MaterialTheme.typography.bodyLarge
+        )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        ReplayButton(tag = "Add_${product.id}", onClick = onAddToCart, modifier = Modifier.fillMaxWidth()) {
+        // כפתור הוספה לסל - כבר היה נכון אצלך
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .replayElement("Add_${product.id}") { onAddToCart() },
+            onClick = { /* ה-Modifier מטפל בזה */ }
+        ) {
             Text("Add to cart")
         }
 
-        ReplayButton(tag = "GoCheckout", onClick = onGoCheckout, modifier = Modifier.fillMaxWidth()) {
+        // תיקון: הוספת { onGoCheckout() } ל-Modifier
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .replayElement("Go_Checkout") { onGoCheckout() },
+            onClick = { /* ה-Modifier מטפל בזה */ }
+        ) {
             Text("Checkout")
         }
 
-        ReplayButton(tag = "BackShop", onClick = onBackToShop, modifier = Modifier.fillMaxWidth()) {
-            Text("Back to Shop")
+        // תיקון: הוספת { onBackToShop() } ל-Modifier
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .replayElement("Back_Shop") { onBackToShop() },
+            onClick = { /* ה-Modifier מטפל בזה */ }
+        ) {
+            Text("Back")
         }
     }
 }

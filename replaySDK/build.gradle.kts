@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose) // ✅ חובה אם יש Composables בספרייה
     id("maven-publish")
+
 }
 
 android {
@@ -11,7 +13,6 @@ android {
 
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -25,51 +26,29 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+    kotlinOptions { jvmTarget = "11" }
+
     buildFeatures {
-        compose = true
+        compose = true // ✅ חובה אם יש Composables בספרייה
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
 }
 
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.serialization.json)
-    
+
     implementation(libs.retrofit)
     implementation(libs.converter.scalars)
     implementation(libs.okhttp)
 
-    implementation(platform(libs.androidx.compose.bom.v20240600))
-
-    implementation(libs.ui)
+    // Compose deps (כי יש ReplayButton / Overlay)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
     implementation(libs.androidx.runtime)
-    implementation(libs.material3)
-}
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.Mayshabat"
-                artifactId = "ui-state-replay-sdk"
-                version = "v1.0.0"
-            }
-        }
-    }
+    implementation(libs.androidx.material3)
 }
