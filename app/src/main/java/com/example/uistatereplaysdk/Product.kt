@@ -18,3 +18,5 @@ val demoProducts = listOf(
 
 fun findProduct(id: String): Product =
     demoProducts.firstOrNull { it.id == id } ?: demoProducts.first()
+
+

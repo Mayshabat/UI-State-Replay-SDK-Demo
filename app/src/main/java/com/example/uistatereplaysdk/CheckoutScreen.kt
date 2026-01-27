@@ -1,13 +1,13 @@
 package com.example.uistatereplaysdk
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.replaysdk.replay.replayElement
+import com.example.replaysdk.replay.ReplayButton
+import com.example.replaysdk.replay.ReplayOutlinedButton
 
 @Composable
 fun CheckoutScreen(
@@ -15,44 +15,45 @@ fun CheckoutScreen(
     onBackToShop: () -> Unit,
     onReset: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+
         Text(
-            text = "Your Cart",
-            style = MaterialTheme.typography.headlineSmall
+            text = "Checkout",
+            style = MaterialTheme.typography.headlineMedium
         )
 
+        Spacer(Modifier.height(16.dp))
+
         if (items.isEmpty()) {
-            Text("Your cart is empty.", style = MaterialTheme.typography.bodyMedium)
+            Text("Cart is empty", style = MaterialTheme.typography.bodyMedium)
         } else {
-            items.forEach { product ->
-                Text("• ${product.name} (${product.price}₪)", style = MaterialTheme.typography.bodyLarge)
+            items.forEach { p ->
+                Text(
+                    text = "• ${p.emoji} ${p.name}  ₪${p.price}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(6.dp))
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(Modifier.height(20.dp))
 
-        // תיקון: הוספת הבלוק { onBackToShop() } ל-Modifier
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .replayElement("Back_Shop") { onBackToShop() },
-            onClick = { /* מנוהל ע"י ה-Modifier בספרייה */ }
+        ReplayOutlinedButton(
+            tag = "Back_Shop",
+            onClick = onBackToShop,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Back to Shop")
         }
 
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .replayElement("Reset_App") { onReset() },
-            onClick = { /* מנוהל ע"י ה-Modifier בספרייה */ }
+        Spacer(Modifier.height(10.dp))
+
+        ReplayButton(
+            tag = "Reset_App",
+            onClick = onReset,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Reset / Clear All")
+            Text("Finish / Reset")
         }
     }
 }

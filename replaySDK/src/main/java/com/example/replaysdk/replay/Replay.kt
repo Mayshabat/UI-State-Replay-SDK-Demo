@@ -16,27 +16,39 @@ object Replay {
     private val events = mutableListOf<Event>()
     internal var currentScreen: String = "Unknown"
 
+    // ✅ NEW: replay state + highlight
+    private var replaying: Boolean = false
+    internal var highlightTag: String? = null
+        private set
+
+    // ✅ NEW: navigator set by host app once
+    private var navigator: ReplayNavigator? = null
 
     private val json = Json {
-        ignoreUnknownKeys = true  // מתעלם משדות שהשרת מחזיר והם לא בדאטה קלאס
-        encodeDefaults = true     // שומר ערכי ברירת מחדל
-        isLenient = true          // מאפשר קריאת JSON פחות נוקשה
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+        isLenient = true
     }
 
-    /**
-     * אתחול ה-SDK
-     */
     fun init(baseUrl: String) {
         ApiClient.init(baseUrl)
         Log.d("REPLAY_SDK", "Initialized with base URL: $baseUrl")
     }
 
-    /** תמיכה במעקב אוטומטי לאפליקציות מרובות Activities */
+    /** Optional: auto track screens for multi-Activity apps */
     fun enableActivityScreenTracking(app: Application) {
         ScreenTracker.install(app)
     }
 
+    // ✅ NEW
+    fun attachNavigator(navigator: ReplayNavigator) {
+        this.navigator = navigator
+        Log.d("REPLAY_SDK", "Navigator attached")
+    }
+
     fun isRecording(): Boolean = recording
+    fun isReplaying(): Boolean = replaying
+    fun currentHighlightTag(): String? = highlightTag
 
     fun start() {
         recording = true
@@ -57,14 +69,13 @@ object Replay {
         Log.d("REPLAY_SDK", "Event logged: $type on $currentScreen (target: $target)")
     }
 
-    /** קריאה לשינוי מסך - ב-Compose או ב-Navigation */
     fun trackScreen(screen: String) {
         currentScreen = screen
         log(type = "SCREEN")
     }
 
-    /** תיעוד לחיצה */
     fun trackClick(tag: String) {
+        Log.d("REPLAY_SDK", "trackClick called for: $tag")
         log(type = "CLICK", target = tag)
     }
 
@@ -115,17 +126,11 @@ object Replay {
 
     fun fromJson(raw: String): Session {
         return try {
-            // ניקוי התשובה מתווים שעלולים להפריע (כמו גרשיים מיותרים בתחילת/סוף מחרוזת)
             val cleanedRaw = raw.trim().removeSurrounding("\"").replace("\\\"", "\"")
             json.decodeFromString<Session>(cleanedRaw)
         } catch (e: Exception) {
             Log.e("REPLAY_SDK", "JSON Decoding failed. Raw data: $raw", e)
-            // ניסיון פענוח ישיר למקרה שהניקוי לא היה נחוץ
-            try {
-                json.decodeFromString<Session>(raw)
-            } catch (inner: Exception) {
-                throw inner
-            }
+            json.decodeFromString(raw)
         }
     }
 
@@ -134,5 +139,47 @@ object Replay {
             val element = json.parseToJsonElement(raw)
             element.jsonObject["sessionId"]?.jsonPrimitive?.content
         }.getOrNull()
+    }
+
+    /**
+     * ✅ NEW: Library-driven replay (no app logic besides attaching navigator)
+     */
+    suspend fun replay(session: Session) {
+        val nav = navigator ?: error("ReplayNavigator not attached. Call Replay.attachNavigator(...) in the host app.")
+
+        val ordered = eventsOf(session)
+
+        replaying = true
+        highlightTag = null
+
+        try {
+            // small buffer
+            delay(300)
+
+            for (e in ordered) {
+                when (e.type) {
+                    "SCREEN" -> {
+                        // screen name comes from e.screen
+                        nav.goTo(e.screen)
+                        delay(700)
+                    }
+
+                    "CLICK" -> {
+                        val tag = e.target
+                        highlightTag = tag
+                        delay(600)
+
+                        // for clicks: either action by tag OR ignore if not needed
+                        if (tag != null) nav.performAction(tag)
+
+                        delay(250)
+                        highlightTag = null
+                    }
+                }
+            }
+        } finally {
+            highlightTag = null
+            replaying = false
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.replaysdk.replay
 
+
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
@@ -13,7 +14,7 @@ fun ReplayButton(
     content: @Composable () -> Unit
 ) {
     Button(
-        modifier = modifier,
+        modifier = modifier.replayHighlight(tag),
         onClick = {
             Replay.trackClick(tag)
             onClick()
@@ -29,7 +30,7 @@ fun ReplayOutlinedButton(
     content: @Composable () -> Unit
 ) {
     OutlinedButton(
-        modifier = modifier,
+        modifier = modifier.replayHighlight(tag),
         onClick = {
             Replay.trackClick(tag)
             onClick()
