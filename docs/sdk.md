@@ -29,16 +29,16 @@ Replay.init(
 
 ## Recording UI events
 
-*** Start recording*** 
+***Start recording*** 
 ```kotlin
 Replay.start()
 ```
-*** Stop & upload*** 
+***Stop & upload*** 
 ```kotlin
 Replay.stopAndUpload()
 
 ```
-*** Replay*** 
+***Replay*** 
 ```kotlin
 Replay.replayLast()
 
@@ -47,9 +47,9 @@ Replay.replayLast()
 During replay, the SDK emits events.
 The host app maps those events into real app actions, for example:
 
--If event.type == "NAVIGATE" → navigate to the relevant screen
+- If event.type == "NAVIGATE" → navigate to the relevant screen
 
--If event.type == "CLICK" → highlight and/or trigger the target UI element by its id
+- If event.type == "CLICK" → highlight and/or trigger the target UI element by its id
 
 This design keeps the SDK reusable across different applications.
 
@@ -57,10 +57,10 @@ This design keeps the SDK reusable across different applications.
 
 The SDK communicates with a REST API:
 
--POST /sessions – upload a new session
+- POST /sessions – upload a new session
 
--GET /sessions – list sessions
+- GET /sessions – list sessions
 
--GET /sessions/<id> – fetch session by id
+- GET /sessions/<id> – fetch session by id
 
--DELETE /sessions/<id> – delete session (optional)
+- DELETE /sessions/<id> – delete session (optional)
