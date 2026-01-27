@@ -29,16 +29,16 @@ Replay.init(
 
 ## Recording UI events
 
-*** Start recording*** 
+***Start recording*** 
 ```kotlin
 Replay.start()
 ```
-*** Stop & upload*** 
+***Stop & upload*** 
 ```kotlin
 Replay.stopAndUpload()
 
 ```
-*** Replay*** 
+***Replay*** 
 ```kotlin
 Replay.replayLast()
 
