@@ -35,13 +35,13 @@ Replay.init(
 
 The demo includes a floating overlay with the following actions:
 
--Start Recording
+- Start Recording
 Begins recording UI interactions using the SDK.
 
--Stop & Upload
+- Stop & Upload
 Stops the recording and uploads the session to the backend API.
 
--Replay
+- Replay
 Fetches the last uploaded session and replays it automatically.
 
 **These actions are implemented by calling** 
@@ -55,20 +55,20 @@ Replay.replayLast()
 
 During replay, the demo application shows:
 
--Automatic navigation between screens
+- Automatic navigation between screens
 
--Highlighted UI interactions
+- Highlighted UI interactions
 
--Deterministic reproduction of the recorded user flow
+- Deterministic reproduction of the recorded user flow
 
 ## Design principle
 
 The demo application does not:
 
--Implement recording logic
+- Implement recording logic
 
--Communicate directly with the backend
+- Communicate directly with the backend
 
--Manage sessions or events
+- Manage sessions or events
 
 All core functionality is encapsulated inside the SDK.
