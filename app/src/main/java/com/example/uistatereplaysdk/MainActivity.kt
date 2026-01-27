@@ -154,9 +154,9 @@ fun DemoApp() {
                 }
             }
 
-            // ✅ Show clicks ONLY during REPLAY
+
             if (Replay.isReplaying()) {
-                // ✅ read tick so Compose will recompose and refresh the text live
+
                 val tickValue = tick // רק כדי "לקרוא" את ה-state ולגרום לרה-קומפוזיציה
 
 

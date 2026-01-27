@@ -1,6 +1,5 @@
 package com.example.replaysdk.replay
 
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
@@ -16,7 +15,13 @@ fun ReplayButton(
     Button(
         modifier = modifier.replayHighlight(tag),
         onClick = {
-            Replay.trackClick(tag)
+            // Prevent user clicks from interfering during replay
+            if (Replay.isReplaying()) return@Button
+
+            // Record only while recording
+            if (Replay.isRecording()) {
+                Replay.trackClick(tag)
+            }
             onClick()
         }
     ) { content() }
@@ -32,7 +37,13 @@ fun ReplayOutlinedButton(
     OutlinedButton(
         modifier = modifier.replayHighlight(tag),
         onClick = {
-            Replay.trackClick(tag)
+            // Prevent user clicks from interfering during replay
+            if (Replay.isReplaying()) return@OutlinedButton
+
+            // Record only while recording
+            if (Replay.isRecording()) {
+                Replay.trackClick(tag)
+            }
             onClick()
         }
     ) { content() }

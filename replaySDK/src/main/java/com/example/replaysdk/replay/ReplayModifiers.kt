@@ -6,11 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
-
-/**
- * Highlight-only modifier.
- * No clickable here (prevents conflicts with Material Button / other click handlers).
- */
+import androidx.compose.foundation.clickable
 fun Modifier.replayHighlight(tag: String): Modifier = composed {
     val isHighlighted = Replay.isReplaying() && Replay.currentHighlightTag() == tag
 
@@ -22,5 +18,16 @@ fun Modifier.replayHighlight(tag: String): Modifier = composed {
         )
     } else {
         this
+    }
+}
+
+
+fun Modifier.replayClickable(
+    tag: String,
+    onClick: () -> Unit
+): Modifier {
+    return this.clickable {
+        Replay.trackClick(tag)
+        onClick()
     }
 }
