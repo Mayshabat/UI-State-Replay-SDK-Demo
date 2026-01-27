@@ -11,17 +11,20 @@ import kotlinx.serialization.json.jsonPrimitive
 
 object Replay {
 
+    private const val TAG = "REPLAY_SDK"
+
+    // --- state ---
+    private val lock = Any()
+
     private var recording = false
     private var startedAt: Long = 0L
     private val events = mutableListOf<Event>()
     internal var currentScreen: String = "Unknown"
 
-    // ✅ NEW: replay state + highlight
     private var replaying: Boolean = false
     internal var highlightTag: String? = null
         private set
 
-    // ✅ NEW: navigator set by host app once
     private var navigator: ReplayNavigator? = null
 
     private val json = Json {
@@ -30,32 +33,47 @@ object Replay {
         isLenient = true
     }
 
+    // ✅ replay-only feed
+    private val replayClickFeed = mutableListOf<String>()
+
     fun init(baseUrl: String) {
         ApiClient.init(baseUrl)
-        Log.d("REPLAY_SDK", "Initialized with base URL: $baseUrl")
+        Log.d(TAG, "Initialized with base URL: $baseUrl")
     }
 
-    /** Optional: auto track screens for multi-Activity apps */
     fun enableActivityScreenTracking(app: Application) {
         ScreenTracker.install(app)
     }
 
-    // ✅ NEW
     fun attachNavigator(navigator: ReplayNavigator) {
         this.navigator = navigator
-        Log.d("REPLAY_SDK", "Navigator attached")
+        Log.d(TAG, "Navigator attached")
     }
 
     fun isRecording(): Boolean = recording
     fun isReplaying(): Boolean = replaying
     fun currentHighlightTag(): String? = highlightTag
 
+    /**
+     * Start recording a new session.
+     * If replay is currently running - do nothing (prevent weird mixed states).
+     */
     fun start() {
+        if (replaying) {
+            Log.w(TAG, "start() ignored: currently replaying")
+            return
+        }
+        if (recording) {
+            Log.w(TAG, "start() ignored: already recording")
+            return
+        }
+
         recording = true
         startedAt = System.currentTimeMillis()
-        events.clear()
-        Log.d("REPLAY_SDK", "Recording started")
+        synchronized(lock) { events.clear() }
+        Log.d(TAG, "Recording started")
     }
+
 
     private fun log(type: String, target: String? = null) {
         if (!recording) return
@@ -65,29 +83,44 @@ object Replay {
             target = target,
             timestamp = System.currentTimeMillis()
         )
-        events.add(event)
-        Log.d("REPLAY_SDK", "Event logged: $type on $currentScreen (target: $target)")
+        synchronized(lock) { events.add(event) }
+        Log.d(TAG, "Event logged: $type on $currentScreen (target: $target)")
     }
 
     fun trackScreen(screen: String) {
+        if (screen == currentScreen) return
         currentScreen = screen
-        log(type = "SCREEN")
+        if (recording) log(type = EventType.SCREEN)
     }
 
+
     fun trackClick(tag: String) {
-        Log.d("REPLAY_SDK", "trackClick called for: $tag")
-        log(type = "CLICK", target = tag)
+        log(type = EventType.CLICK, target = tag)
     }
 
     fun stop(): Session {
+        val now = System.currentTimeMillis()
+
+        // if stop called without start, create a consistent empty session
+        if (!recording && startedAt == 0L) {
+            val snapshot = synchronized(lock) { events.toList() }
+            return Session(
+                startedAt = now,
+                endedAt = now,
+                events = snapshot
+            )
+        }
+
         recording = false
-        Log.d("REPLAY_SDK", "Recording stopped. Total events: ${events.size}")
+        val snapshot = synchronized(lock) { events.toList() }
+
         return Session(
-            startedAt = startedAt,
-            endedAt = System.currentTimeMillis(),
-            events = events.toList()
+            startedAt = if (startedAt == 0L) now else startedAt,
+            endedAt = now,
+            events = snapshot
         )
     }
+
 
     suspend fun stopAndUpload(): String {
         val session = stop()
@@ -99,10 +132,10 @@ object Replay {
             val body = ApiClient.jsonBody(toJson(session))
             val response = ApiClient.service().postSession(body)
             val sessionId = extractSessionId(response) ?: response
-            Log.d("REPLAY_SDK", "Upload successful. Session ID: $sessionId")
+            Log.d(TAG, "Upload successful. Session ID: $sessionId")
             sessionId
         } catch (e: Exception) {
-            Log.e("REPLAY_SDK", "Upload failed", e)
+            Log.e(TAG, "Upload failed", e)
             throw e
         }
     }
@@ -110,10 +143,10 @@ object Replay {
     suspend fun fetch(sessionId: String): Session {
         return try {
             val raw = ApiClient.service().getSession(sessionId)
-            Log.d("REPLAY_SDK", "Fetch raw response: $raw")
+            Log.d(TAG, "Fetch raw response: $raw")
             fromJson(raw)
         } catch (e: Exception) {
-            Log.e("REPLAY_SDK", "Fetch failed for sessionId: $sessionId", e)
+            Log.e(TAG, "Fetch failed for sessionId: $sessionId", e)
             throw e
         }
     }
@@ -129,7 +162,7 @@ object Replay {
             val cleanedRaw = raw.trim().removeSurrounding("\"").replace("\\\"", "\"")
             json.decodeFromString<Session>(cleanedRaw)
         } catch (e: Exception) {
-            Log.e("REPLAY_SDK", "JSON Decoding failed. Raw data: $raw", e)
+            Log.e(TAG, "JSON Decoding failed. Raw data: $raw", e)
             json.decodeFromString(raw)
         }
     }
@@ -141,35 +174,47 @@ object Replay {
         }.getOrNull()
     }
 
-    /**
-     * ✅ NEW: Library-driven replay (no app logic besides attaching navigator)
-     */
+    fun getReplayClickFeedText(max: Int = 12): String {
+        val items = synchronized(lock) { replayClickFeed.takeLast(max) }
+        return if (items.isEmpty()) "No replay clicks yet"
+        else items.joinToString("\n") { "• $it" }
+    }
+
+
     suspend fun replay(session: Session) {
-        val nav = navigator ?: error("ReplayNavigator not attached. Call Replay.attachNavigator(...) in the host app.")
+        val nav = navigator
+            ?: error("ReplayNavigator not attached. Call Replay.attachNavigator(...) in the host app.")
+
+        if (recording) {
+            Log.w(TAG, "replay() called while recording. Stopping recording first.")
+            stop()
+        }
 
         val ordered = eventsOf(session)
 
         replaying = true
         highlightTag = null
+        synchronized(lock) { replayClickFeed.clear() }
+
 
         try {
-            // small buffer
             delay(300)
 
             for (e in ordered) {
                 when (e.type) {
-                    "SCREEN" -> {
-                        // screen name comes from e.screen
+                    EventType.SCREEN -> {
                         nav.goTo(e.screen)
                         delay(700)
                     }
 
-                    "CLICK" -> {
+                    EventType.CLICK -> {
                         val tag = e.target
                         highlightTag = tag
-                        delay(600)
 
-                        // for clicks: either action by tag OR ignore if not needed
+                        if (tag != null) synchronized(lock) { replayClickFeed.add("${e.screen} -> $tag") }
+
+
+                        delay(600)
                         if (tag != null) nav.performAction(tag)
 
                         delay(250)
@@ -181,5 +226,30 @@ object Replay {
             highlightTag = null
             replaying = false
         }
+    }
+
+    // Public debug helpers (safe snapshots)
+    fun getRecordedEvents(): List<Event> =
+        synchronized(lock) { events.toList() }
+
+    fun getLastSessionPreview(): Session? {
+        val snapshot = synchronized(lock) { events.toList() }
+        if (snapshot.isEmpty()) return null
+        return Session(
+            startedAt = startedAt,
+            endedAt = System.currentTimeMillis(),
+            events = snapshot
+        )
+    }
+
+    fun getClickTags(): List<String> =
+        synchronized(lock) {
+            events.filter { it.type == EventType.CLICK }.mapNotNull { it.target }
+        }
+
+    fun getClicksAsText(max: Int = 10): String {
+        val clicks = getClickTags().takeLast(max)
+        return if (clicks.isEmpty()) "No clicks yet"
+        else clicks.joinToString(separator = "\n") { "• $it" }
     }
 }
