@@ -2,9 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.compose) // ✅ חובה אם יש Composables בספרייה
+    alias(libs.plugins.kotlin.compose) // חובה אם יש Composables בספרייה
     id("maven-publish")
-
 }
 
 android {
@@ -28,15 +27,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "11" }
+    kotlinOptions { jvmTarget = "17" }
 
     buildFeatures {
-        compose = true // ✅ חובה אם יש Composables בספרייה
+        compose = true
     }
-
 }
 
 dependencies {
@@ -51,4 +49,17 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.material3)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.Mayshabat"
+                artifactId = "replaySDK"
+                version = "1.0.3"
+            }
+        }
+    }
 }
