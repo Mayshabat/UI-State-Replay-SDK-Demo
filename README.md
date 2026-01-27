@@ -14,11 +14,10 @@ The SDK captures structured UI events (such as navigation, clicks, and screen tr
 - Record UI events (navigation, actions, screen changes)
 - Upload sessions to a cloud backend
 - Retrieve recorded sessions from the server
-- Replay user flows with automatic navigation and visual highlights
+- Replay user flows with deterministic navigation
 - No video recording
 - No personal user data
 - Lightweight and developer-friendly integration
-
 ---
 
 ## 🧱 Project Architecture
@@ -123,6 +122,8 @@ The repository includes a demo Android application that demonstrates:
 - Uploading a session to the backend
 - Fetching a recorded session
 - Replaying the flow with visual highlights and automatic navigation
+- Note: The demo application is not required for SDK usage and exists only as a reference implementation.
+
 ### Navigation Binding (Required for Replay)
 
 The SDK does not control navigation directly.
