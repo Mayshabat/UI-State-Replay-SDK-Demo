@@ -82,7 +82,7 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation "com.github.Mayshabat:UI-State-Replay-SDK-Demo:v1.0.0"
+    implementation "com.github.Mayshabat:UI-State-Replay-SDK-Demo:v1.0.3"
 }
 ```
 
