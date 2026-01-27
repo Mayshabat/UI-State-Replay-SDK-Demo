@@ -88,25 +88,32 @@ dependencies {
 
 ##  Usage Example
 
+###  Initialize once (e.g. in Application or MainActivity)
+```kotlin
+Replay.init("https://ui-state-replay-sdk.onrender.com")
+
+```
+
 ###  Start recording
 ```kotlin
 Replay.start()
 
 ```
-### Log events
+### Track UI state
 ```kotlin
-Replay.log("NAVIGATE", "HomeScreen")
-Replay.log("ADD_TO_CART", "ProductScreen")
+Replay.trackScreen("Login")
+Replay.trackClick("Login_Btn")
  ```
 
 ### Stop recording and upload
 ```kotlin
-Replay.stopAndUpload()
+val sessionId = Replay.stopAndUpload()
 ```
 
-### Replay a recorded session
+### Fetch session and replay
 ```kotlin
-Replay.replay(sessionId)
+val session = Replay.fetch(sessionId)
+Replay.replay(session)
 ```
 
 ### Demo Application
@@ -116,7 +123,29 @@ The repository includes a demo Android application that demonstrates:
 - Uploading a session to the backend
 - Fetching a recorded session
 - Replaying the flow with visual highlights and automatic navigation
+### Navigation Binding (Required for Replay)
 
+The SDK does not control navigation directly.
+The host application must provide a `ReplayNavigator` implementation.
+
+Example:
+
+```kotlin
+Replay.attachNavigator(object : ReplayNavigator {
+
+    override fun goTo(screen: String) {
+        // Navigate to screen
+    }
+
+    override fun back() {
+        // Handle back navigation
+    }
+
+    override fun performAction(tag: String) {
+        // Optional: handle button actions by tag
+    }
+})
+```
 ###  Use Cases
 - Debugging complex UI flows
 - Reproducing hard-to-catch bugs
